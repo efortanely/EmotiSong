@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">EmotiSong</string>
+
+    <string name="natural_language_understanding_username">e418e6cb-741d-4b54-9aef-0d46e0658f7c</string>
+    <string name="natural_language_understanding_password">TVVSr6HbiN6o</string>
+    <string name="natural_language_understanding_url">https://gateway.watsonplatform.net/natural-language-understanding/api</string>
 </resources>
