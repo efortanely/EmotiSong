@@ -15,7 +15,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         //TODO temp code
-        new Song("Rolling in the deep","Adele").execute("");
 
         getSupportActionBar().setTitle("Welcome to EmotiSong!");
 
