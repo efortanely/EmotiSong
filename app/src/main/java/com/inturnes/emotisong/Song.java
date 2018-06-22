@@ -21,32 +21,27 @@ import org.jmusixmatch.entity.lyrics.Lyrics;
 import org.jmusixmatch.entity.track.Track;
 import org.jmusixmatch.entity.track.TrackData;
 
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Song extends AsyncTask<String, String, String>{
+public class Song {
     private String songName;
     private String artistName;
     private Emotion emotion;
     private double emotionCompatibility;
     private boolean successfullyRanked;
     private Context context;
-    private Class<NaturalLanguageUnderstanding> naturalLanguageUnderstandingClass;
 
     public Song(Context context, String songName, String artistName){
         this.context = context;
         this.songName = songName;
         this.artistName = artistName;
         this.emotion = new Emotion();
+        this.emotionCompatibility = -1;
     }
 
-    protected String doInBackground(String... urls){
-        //TODO temp code
-        setEmotion(new Emotion(0.1,0.2,0.3,0.4,0.5));
-        return null;
-    }
-
-    private void setEmotion(Emotion faceEmotion){
+    public void setEmotion(Emotion faceEmotion){
         String apiKey = "910d266bf07add88c50e4b1acb84e0d6";
         MusixMatch musixMatch = new MusixMatch(apiKey);
         Track track;
@@ -54,7 +49,6 @@ public class Song extends AsyncTask<String, String, String>{
         try {
             track = musixMatch.getMatchingTrack(songName, artistName);
         } catch (MusixMatchException e) {
-            emotionCompatibility = -1;
             return;
         }
 
@@ -65,7 +59,6 @@ public class Song extends AsyncTask<String, String, String>{
         try {
             lyrics = musixMatch.getLyrics(trackID);
         } catch (MusixMatchException e) {
-            emotionCompatibility = -1;
             return;
         }
 
@@ -100,8 +93,6 @@ public class Song extends AsyncTask<String, String, String>{
 
         EmotionResult emotionResult = response.getEmotion();
 
-        System.out.println(emotionResult);
-
         String emotionString = emotionResult.toString();
         pattern = Pattern.compile("\"([a-z]+)\": ([0-9].[0-9]*),?");
         matcher = pattern.matcher(emotionString);
@@ -132,11 +123,14 @@ public class Song extends AsyncTask<String, String, String>{
         }
 
         if(startingAt == 0){
-            emotionCompatibility = -1;
             return;
         }
 
         emotionCompatibility = this.emotion.compatibility(faceEmotion);
         successfullyRanked = true;
+    }
+
+    public double getEmotionCompatibility(){
+        return this.emotionCompatibility;
     }
 }

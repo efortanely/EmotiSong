@@ -42,7 +42,7 @@ import cz.msebera.android.httpclient.util.EntityUtils;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 public class CaptureActivity extends AppCompatActivity {
-
+    private MasterPlaylist masterPlaylist;
     //credit: https://blogs.msdn.microsoft.com/uk_faculty_connection/2017/10/14/using-microsoft-cognitive-emotion-api-with-android-app-studio/
     private ImageView imageView; // variable to hold the image view in our activity_main.xml
     private TextView resultText; // variable to hold the text view in our activity_main.xml
@@ -51,6 +51,9 @@ public class CaptureActivity extends AppCompatActivity {
 
     private static final int SELECT_PICTURE = 1;
     private String selectedImagePath;
+
+    //TODO have a button that when you click it, will bring you to the playlist screen
+    //TODO pass the master playlist to it, call the top songs method on it
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -248,17 +251,42 @@ public class CaptureActivity extends AppCompatActivity {
                 String emotions = "";
                 // get the scores object from the results
                 for(int i = 0;i <jsonArray.length();i++) {
+                    Person newFace = new Person();
                     JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
                     JSONObject scores = jsonObject.getJSONObject("scores");
                     double max = 0;
                     String emotion = "";
+                    Emotion newEmotion = new Emotion();
                     for (int j = 0; j < scores.names().length(); j++) {
+                        String tag = scores.names().getString(j);
+                        double strength = scores.getDouble(scores.names().getString(j));
+                        switch(tag){
+                            case "anger":
+                                newEmotion.setAnger(strength);
+                                break;
+                            case "disgust":
+                                newEmotion.setDisgust(strength);
+                                break;
+                            case "fear":
+                                newEmotion.setFear(strength);
+                                break;
+                            case "happiness":
+                                newEmotion.setHappiness(strength);
+                                break;
+                            case "sadness":
+                                newEmotion.setSadness(strength);
+                                break;
+                        }
+
                         if (scores.getDouble(scores.names().getString(j)) > max) {
-                            max = scores.getDouble(scores.names().getString(j));
-                            emotion = scores.names().getString(j);
+                            max = strength;
+                            emotion = tag;
                         }
                     }
                     emotions += emotion.substring(0,1).toUpperCase() + emotion.substring(1) + "\n";
+
+                    newFace.addEmotion(newEmotion);
+                    masterPlaylist.addFace(newFace);
                 }
                 resultText.setText(emotions);
 

@@ -14,14 +14,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        //TODO temp code
-
         getSupportActionBar().setTitle("Welcome to EmotiSong!");
 
         findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Toast.makeText(LoginActivity.this, "Hello", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(LoginActivity.this, CaptureActivity.class);
                 startActivity(intent);
             }
