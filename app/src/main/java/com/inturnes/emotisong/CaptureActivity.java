@@ -29,6 +29,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.sql.Blob;
+import java.text.DecimalFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
@@ -242,26 +246,56 @@ public class CaptureActivity extends AppCompatActivity {
         // this function is called when we get a result from the API call
         @Override
         protected void onPostExecute(String result) {
+            DecimalFormat df = new DecimalFormat("#.00");
             JSONArray jsonArray = null;
             try {
                 // convert the string to JSONArray
                 jsonArray = new JSONArray(result);
                 String emotions = "";
+
+                //store emotion mapped to sum of emotional scores from each person
+                Map<String, Double> maxEmotions = new HashMap<>();
+                maxEmotions.put("anger", 0.0);
+                maxEmotions.put("contempt", 0.0);
+                maxEmotions.put("disgust", 0.0);
+                maxEmotions.put("fear", 0.0);
+                maxEmotions.put("happiness", 0.0);
+                maxEmotions.put("neutral", 0.0);
+                maxEmotions.put("sadness", 0.0);
+                maxEmotions.put("surprise", 0.0);
                 // get the scores object from the results
-                for(int i = 0;i <jsonArray.length();i++) {
+                for(int i = 0; i < jsonArray.length();i++) {
                     JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
                     JSONObject scores = jsonObject.getJSONObject("scores");
                     double max = 0;
                     String emotion = "";
                     for (int j = 0; j < scores.names().length(); j++) {
+                        String currEmotion = scores.names().getString(j);
+                        maxEmotions.put(currEmotion, maxEmotions.get(currEmotion) + scores.getDouble(currEmotion));
                         if (scores.getDouble(scores.names().getString(j)) > max) {
                             max = scores.getDouble(scores.names().getString(j));
                             emotion = scores.names().getString(j);
                         }
                     }
-                    emotions += emotion.substring(0,1).toUpperCase() + emotion.substring(1) + "\n";
+                    //emotions += emotion.substring(0,1).toUpperCase() + emotion.substring(1) + " " + String.format( "%.2f", max * 100)  + "% \n";
                 }
+
+                Map.Entry<String, Double> maxEntry = null;
+                for (Map.Entry<String, Double> entry : maxEmotions.entrySet())
+                {
+                    if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
+                    {
+                        maxEntry = entry;
+                    }
+                }
+
+                final String maxEmotion = maxEntry.getKey();
+                emotions += "Overall " + maxEmotion + " " + String.format( "%.2f", (maxEntry.getValue() / 8 * 100)) + "%\n";
                 resultText.setText(emotions);
+
+                Intent intent = new Intent(CaptureActivity.this, SongActivity.class);
+                intent.putExtra("emotion", maxEmotion);
+                startActivity(intent);
 
 
             } catch (JSONException e) {
