@@ -44,31 +44,21 @@ public class MasterPlaylist {
     }
 
     private void addTopSongs(){
-        allSongs.add(new Song(this.context,"Sober","Demi Lovato"));
-        allSongs.add(new Song(this.context,"Girls Like You (feat. Cardi B)","Maroon 5"));
-        allSongs.add(new Song(this.context,"I Like It","Cardi B, Bad Bunny & J Balvin"));
-        allSongs.add(new Song(this.context,"the light is coming (feat. Nicki Minaj)","Ariana Grande"));
-        allSongs.add(new Song(this.context,"Whatever It Takes","Imagine Dragons"));
-        allSongs.add(new Song(this.context,"Born to Be Yours","Kygo & Imagine Dragons"));
-        allSongs.add(new Song(this.context,"Meant to Be","Bebe Rexha & Florida Georgia Line"));
-        allSongs.add(new Song(this.context,"Psycho (feat. Ty Dolla $ign","Post Malone"));
-        allSongs.add(new Song(this.context,"no tears left to cry","Ariana Grande"));
-        allSongs.add(new Song(this.context,"Simple","Florida Georgia Line"));
-        allSongs.add(new Song(this.context,"In My Blood","Shawn Mendes"));
-        allSongs.add(new Song(this.context,"Better Now","Post Malone"));
-        allSongs.add(new Song(this.context,"The Middle","Zedd, Maren Morris & Grey"));
-        allSongs.add(new Song(this.context,"Nice For What","Drake"));
-        allSongs.add(new Song(this.context,"Delicate","Taylor Swift"));
-        allSongs.add(new Song(this.context,"Lucid Dreams","Juice WRLD"));
-        allSongs.add(new Song(this.context,"Youngblood","5 Seconds of Summer"));
-        allSongs.add(new Song(this.context,"Everything's Gonna Be Alright","David Lee Murphy & Kenny Chesney"));
-        allSongs.add(new Song(this.context,"Back to You","Selena Gomez"));
-        allSongs.add(new Song(this.context,"Mercy","Brett Young"));
-        allSongs.add(new Song(this.context,"One Kiss","Calvin Harris, Dua Lipa"));
-        allSongs.add(new Song(this.context,"Thunder","Imagine Dragons"));
-        allSongs.add(new Song(this.context,"Mine","Bazzi"));
-        allSongs.add(new Song(this.context,"Drowns the Whiskey (feat. Miranda Lambert)","Jason Aldean"));
-        allSongs.add(new Song(this.context,"Heaven","Kane Brown"));
+        allSongs.add(new Song(this.context,"Someone Like You","Adele"));
+        allSongs.add(new Song(this.context,"Lonely","Akon"));
+        allSongs.add(new Song(this.context,"Wouldn't it be nice","Beach Boys"));
+        allSongs.add(new Song(this.context,"Nothin on you","BoB"));
+        allSongs.add(new Song(this.context,"Don't Worry Be Happy","Bobby McFerrin"));
+        allSongs.add(new Song(this.context,"Nothin on you","BoB"));
+        allSongs.add(new Song(this.context,"Mr. Blue Sky","Electric Light Orchestra"));
+        allSongs.add(new Song(this.context,"Beautiful Girls","Sean Kingston"));
+        allSongs.add(new Song(this.context,"Shut Up and Dance","Walk the Moon"));
+        allSongs.add(new Song(this.context,"Single Ladies","Beyonce"));
+        allSongs.add(new Song(this.context,"Stay With Me","Sam Smith"));
+        allSongs.add(new Song(this.context,"The Beatles","Hey Jude"));
+        allSongs.add(new Song(this.context,"Where is the love?","The Black Eyed Peas"));
+        allSongs.add(new Song(this.context,"The Lazy Song","Bruno Mars"));
+        allSongs.add(new Song(this.context,"Walking on Sunshine","Katrina and The Waves"));
     }
 
     public void addFace(Person face){
