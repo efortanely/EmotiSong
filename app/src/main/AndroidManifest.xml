@@ -24,6 +24,7 @@
         <activity android:name=".SelectionActivity" />
         <activity android:name=".BufferingActivity" />
         <activity android:name=".SongActivity"></activity>
+        <activity android:name=".PlaylistActivity"></activity>
     </application>
 
 </manifest>
