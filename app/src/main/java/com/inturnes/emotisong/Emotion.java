@@ -1,10 +1,6 @@
 package com.inturnes.emotisong;
 
-import java.util.Comparator;
-
 public class Emotion {
-    //TODO from microsoft- "digust", "fear", "sadness", "anger", "happiness"
-    //TODO from ibm- "digust", "fear", "sadness", "anger", "joy"
     private double disgust;
     private double fear;
     private double sadness;

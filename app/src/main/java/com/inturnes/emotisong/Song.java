@@ -1,19 +1,13 @@
 package com.inturnes.emotisong;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
-import com.google.gson.JsonParser;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.NaturalLanguageUnderstanding;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.AnalysisResults;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.AnalyzeOptions;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.EmotionOptions;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.EmotionResult;
-import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.EmotionScores;
-import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.EntitiesOptions;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.Features;
-import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.KeywordsOptions;
-import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.TargetedEmotionResults;
 
 import org.jmusixmatch.MusixMatch;
 import org.jmusixmatch.MusixMatchException;
@@ -21,7 +15,6 @@ import org.jmusixmatch.entity.lyrics.Lyrics;
 import org.jmusixmatch.entity.track.Track;
 import org.jmusixmatch.entity.track.TrackData;
 
-import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +34,10 @@ public class Song {
         this.emotionCompatibility = -1;
     }
 
+    //given the emotion of the user, analyzes the song lyrics to set emotion to proper emotion for song
+    //and updates emotion compatibility integer with a number that is larger if a closer fit to the user, and
+    //smaller if it is not. also updates the successfully ranked boolean if the api's were able to categorize
+    //the song lyrics appropriately
     public void setEmotion(Emotion faceEmotion){
         String apiKey = "910d266bf07add88c50e4b1acb84e0d6";
         MusixMatch musixMatch = new MusixMatch(apiKey);
