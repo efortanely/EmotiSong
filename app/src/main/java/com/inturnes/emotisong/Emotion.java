@@ -1,6 +1,8 @@
 package com.inturnes.emotisong;
 
-public class Emotion {
+import java.io.Serializable;
+
+public class Emotion implements Serializable {
     private double disgust;
     private double fear;
     private double sadness;

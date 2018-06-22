@@ -1,6 +1,8 @@
 package com.inturnes.emotisong;
 
-public class Person {
+import java.io.Serializable;
+
+public class Person implements Serializable {
     //TODO store face for showing in selectionActivity
     private Emotion emotion;
     private String username;
@@ -8,8 +10,7 @@ public class Person {
     private int numSongsToContribute;
 
     //TODO create method to analyze songs in selected songs
-    public Person(){
-
+    public Person() {
     }
 
     public void addEmotion(Emotion emotion){

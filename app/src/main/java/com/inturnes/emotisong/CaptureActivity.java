@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -27,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.sql.Blob;
 import java.text.DecimalFormat;
@@ -47,7 +49,7 @@ import cz.msebera.android.httpclient.util.EntityUtils;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 public class CaptureActivity extends AppCompatActivity {
-    private MasterPlaylist masterPlaylist;
+    //private MasterPlaylist masterPlaylist;
     //credit: https://blogs.msdn.microsoft.com/uk_faculty_connection/2017/10/14/using-microsoft-cognitive-emotion-api-with-android-app-studio/
     private ImageView imageView; // variable to hold the image view in our activity_main.xml
     private TextView resultText; // variable to hold the text view in our activity_main.xml
@@ -68,6 +70,7 @@ public class CaptureActivity extends AppCompatActivity {
         // initiate our image view and text view
         imageView = (ImageView) findViewById(R.id.imageView);
         resultText = (TextView) findViewById(R.id.resultText);
+        //masterPlaylist = new MasterPlaylist(CaptureActivity.this);
     }
 
     // when the "GET EMOTION" Button is clicked this function is called
@@ -166,7 +169,7 @@ public class CaptureActivity extends AppCompatActivity {
     }
 
     // asynchronous class which makes the API call in the background
-    private class GetEmotionCall extends AsyncTask<Void, Void, String> {
+    private class GetEmotionCall extends AsyncTask<Void, Void, String> implements Serializable{
 
         private final ImageView img;
         GetEmotionCall(ImageView img) {
@@ -250,6 +253,7 @@ public class CaptureActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             DecimalFormat df = new DecimalFormat("#.00");
+            MasterPlaylist masterPlaylist = new MasterPlaylist(CaptureActivity.this);
             JSONArray jsonArray = null;
             try {
                 // convert the string to JSONArray
@@ -325,8 +329,15 @@ public class CaptureActivity extends AppCompatActivity {
                 emotions += "Overall " + maxEmotion + " " + String.format( "%.2f", (maxEntry.getValue() / 8 * 100)) + "%\n";
                 resultText.setText(emotions);
 
+                //pass MasterPlaylist class to next class
+                /*Song song = masterPlaylist.getTopSongs().get(0);
+                String file = song.getFile();
+                System.out.println(song.getSongName());*/
+
+
                 Intent intent = new Intent(CaptureActivity.this, SongActivity.class);
                 intent.putExtra("emotion", maxEmotion);
+                System.out.println(maxEmotion);
                 startActivity(intent);
 
 

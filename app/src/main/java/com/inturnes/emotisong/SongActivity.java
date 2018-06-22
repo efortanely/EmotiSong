@@ -1,5 +1,6 @@
 package com.inturnes.emotisong;
 
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,9 +23,11 @@ public class SongActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song);
 
-        Bundle bundle=getIntent().getExtras();
-        int value=bundle.getInt("emotion");
+        //Intent i = getIntent();
+        //final MasterPlaylist playlist = (MasterPlaylist) i.getSerializableExtra("playlist");
 
+        Bundle bundle = getIntent().getExtras();
+        final String emotion = bundle.getString("emotion");
         //start
 
         final MediaPlayer mp = new MediaPlayer();
@@ -42,7 +45,27 @@ public class SongActivity extends AppCompatActivity {
                 try {
                     mp.reset();
                     AssetFileDescriptor afd;
-                    afd = getAssets().openFd("superfar.mp3");
+
+                    //Song song = playlist.getTopSongs().get(0);
+                    //String file = song.getFile();
+                    String[] happiness = {"beautifulgirls.mp3", "dontworrybehappy.mp3", "shutupanddance.mp3", "mrbluesky.mp3", "walkingonsunshine.mp3"};
+                    String[] sadness = {"staywithme.mp3", "someonelikeyou.mp3", "lonely.mp3", "wouldntitbenice.mp3"};
+                    String[] anger = {"singleladies.mp3", "whereisthelove.mp3"};
+                    String[] neutral = {"heyjude.mp3", "superfar.mp3", "mrbluesky.mp3", "nothinonyou.mp3", "thelazysong.mp3"};
+                    String file = "";
+                    if (emotion.equalsIgnoreCase("happiness")) {
+                        file = happiness[(int) (Math.random() * happiness.length)];
+                    } else if (emotion.equalsIgnoreCase("sadness")) {
+                        file = sadness[(int) (Math.random() * sadness.length)];
+                    } else if (emotion.equalsIgnoreCase("anger") || emotion.equalsIgnoreCase("contempt") || emotion.equalsIgnoreCase("disgust")) {
+                        file = anger[(int) (Math.random() * anger.length)];
+                    } else if (emotion.equalsIgnoreCase("neutral") || emotion.equalsIgnoreCase("surprise") || emotion.equalsIgnoreCase("fear")) {
+                        file = neutral[(int) (Math.random() * neutral.length)];
+                    }
+                    afd = getAssets().openFd(file);
+
+                    //System.out.println(song.getSongName());
+
                     mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
                     mp.prepare();
                     mp.start();

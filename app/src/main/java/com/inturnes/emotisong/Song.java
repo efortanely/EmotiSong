@@ -15,10 +15,11 @@ import org.jmusixmatch.entity.lyrics.Lyrics;
 import org.jmusixmatch.entity.track.Track;
 import org.jmusixmatch.entity.track.TrackData;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Song {
+public class Song implements Serializable {
     private String songName;
     private String artistName;
     private Emotion emotion;
@@ -26,12 +27,15 @@ public class Song {
     private boolean successfullyRanked;
     private Context context;
 
-    public Song(Context context, String songName, String artistName){
+    private String file;
+
+    public Song(Context context, String songName, String artistName, String fileName){
         this.context = context;
         this.songName = songName;
         this.artistName = artistName;
         this.emotion = new Emotion();
         this.emotionCompatibility = -1;
+        this.file = fileName;
     }
 
     //given the emotion of the user, analyzes the song lyrics to set emotion to proper emotion for song
@@ -129,5 +133,18 @@ public class Song {
 
     public double getEmotionCompatibility(){
         return this.emotionCompatibility;
+    }
+
+    public String getFile() {
+        return file;
+    }
+
+    public String getSongName() {
+        return songName;
+
+    }
+
+    public String getArtistName() {
+        return artistName;
     }
 }
