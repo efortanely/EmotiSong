@@ -1,6 +1,6 @@
 package com.inturnes.emotisong;
 
-import android.content.Context;
+import android.os.AsyncTask;
 
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.NaturalLanguageUnderstanding;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.AnalysisResults;
@@ -14,137 +14,172 @@ import org.jmusixmatch.MusixMatchException;
 import org.jmusixmatch.entity.lyrics.Lyrics;
 import org.jmusixmatch.entity.track.Track;
 import org.jmusixmatch.entity.track.TrackData;
+import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Song implements Serializable {
-    private String songName;
-    private String artistName;
+    private static ArrayList<Song> database;
+    private String songName, artistName, fileName;
     private Emotion emotion;
-    private double emotionCompatibility;
-    private boolean successfullyRanked;
-    private Context context;
 
-    private String file;
+    public Song(){
+        if(database == null){
+            Song.initializeDatabase();
+        }
+    }
 
-    public Song(Context context, String songName, String artistName, String fileName){
-        this.context = context;
+    public Song(String songName, String artistName, String fileName){
+        if(database == null){
+            Song.initializeDatabase();
+        }
+
         this.songName = songName;
         this.artistName = artistName;
-        this.emotion = new Emotion();
-        this.emotionCompatibility = -1;
-        this.file = fileName;
+        this.fileName = fileName;
+        ScrapeSentiment sentiment = new ScrapeSentiment();
+        sentiment.execute();
+        this.emotion = sentiment.getEmotion();
     }
 
-    //given the emotion of the user, analyzes the song lyrics to set emotion to proper emotion for song
-    //and updates emotion compatibility integer with a number that is larger if a closer fit to the user, and
-    //smaller if it is not. also updates the successfully ranked boolean if the api's were able to categorize
-    //the song lyrics appropriately
-    public void setEmotion(Emotion faceEmotion){
-        String apiKey = "910d266bf07add88c50e4b1acb84e0d6";
-        MusixMatch musixMatch = new MusixMatch(apiKey);
-        Track track;
-
-        try {
-            track = musixMatch.getMatchingTrack(songName, artistName);
-        } catch (MusixMatchException e) {
-            return;
+    public static Song getTopSong(Emotion... faces){
+        if(Song.database == null){
+            Song.initializeDatabase();
         }
 
-        TrackData data = track.getTrack();
-        int trackID = data.getTrackId();
-        Lyrics lyrics;
+        Emotion overallEmotion = Emotion.averageEmotion(faces);
+        System.out.println("Emotion of photo!");
+        System.out.println(overallEmotion.toString());
+        Song bestSong = new Song();
+        double bestScore = Double.MIN_VALUE;
 
-        try {
-            lyrics = musixMatch.getLyrics(trackID);
-        } catch (MusixMatchException e) {
-            return;
-        }
-
-        String lyricsBody = lyrics.getLyricsBody();
-        Pattern pattern = Pattern.compile("[.]{3}[\\s\\S]*[*]{7}");
-        Matcher matcher = pattern.matcher(lyricsBody);
-        if(matcher.find()){
-            lyricsBody = matcher.replaceAll("");
-        }
-
-        NaturalLanguageUnderstanding service = new NaturalLanguageUnderstanding(
-                "2018-03-16",
-                context.getString(R.string.natural_language_understanding_username),
-                context.getString(R.string.natural_language_understanding_password));
-        service.setEndPoint(context.getString(R.string.natural_language_understanding_url));
-
-        EmotionOptions emotionOptions = new EmotionOptions.Builder()
-                .build();
-
-        Features features = new Features.Builder()
-                .emotion(emotionOptions)
-                .build();
-
-        AnalyzeOptions parameters = new AnalyzeOptions.Builder()
-                .text(lyricsBody)
-                .features(features)
-                .build();
-
-        AnalysisResults response = service
-                .analyze(parameters)
-                .execute();
-
-        EmotionResult emotionResult = response.getEmotion();
-
-        String emotionString = emotionResult.toString();
-        pattern = Pattern.compile("\"([a-z]+)\": ([0-9].[0-9]*),?");
-        matcher = pattern.matcher(emotionString);
-        int startingAt = 0;
-        while(matcher.find(startingAt)){
-            String tag = matcher.group(1);
-            double strength = Double.parseDouble(matcher.group(2));
-
-            switch(tag){
-                case "anger":
-                    emotion.setAnger(strength);
-                    break;
-                case "disgust":
-                    emotion.setDisgust(strength);
-                    break;
-                case "fear":
-                    emotion.setFear(strength);
-                    break;
-                case "joy":
-                    emotion.setHappiness(strength);
-                    break;
-                case "sadness":
-                    emotion.setSadness(strength);
-                    break;
+        for(Song song : Song.database) {
+            double compatibility = song.getEmotionCompatibility(overallEmotion);
+            if(compatibility > bestScore){
+                bestScore = compatibility;
+                bestSong = song;
             }
-
-            startingAt = matcher.end();
         }
 
-        if(startingAt == 0){
-            return;
-        }
-
-        emotionCompatibility = this.emotion.compatibility(faceEmotion);
-        successfullyRanked = true;
+        System.out.println("Emotion of song!");
+        System.out.println(bestSong.getEmotion().toString());
+        return bestSong;
     }
 
-    public double getEmotionCompatibility(){
-        return this.emotionCompatibility;
+    public static void initializeDatabase(){
+        Song.database = new ArrayList<>();
+        database.add(new Song("Someone Like You","Adele", "someonelikeyou.mp3"));
+        database.add(new Song("Lonely","Akon", "lonely.mp3"));
+        database.add(new Song("Wouldn't it be nice","Beach Boys", "wouldntitbenice.mp3"));
+        database.add(new Song("Nothin on you","BoB", "nothinonyou.mp3"));
+        database.add(new Song("Don't Worry Be Happy","Bobby McFerrin", "dontworrybehappy.mp3"));
+        database.add(new Song("Mr. Blue Sky","Electric Light Orchestra", "mrblueksy.mp3"));
+        database.add(new Song("Beautiful Girls","Sean Kingston", "beautifulgirls.mp3"));
+        database.add(new Song("Shut Up and Dance","Walk the Moon", "shutupanddance.mp3"));
+        database.add(new Song("Single Ladies","Beyonce", "singleladies.mp3"));
+        database.add(new Song("Stay With Me","Sam Smith", "staywithme.mp3"));
+        database.add(new Song("Hey Jude","The Beatles", "heyjude.mp3"));
+        database.add(new Song("Where is the love?","The Black Eyed Peas", "whereisthelove.mp3"));
+        database.add(new Song("The Lazy Song","Bruno Mars", "thelazysong.mp3"));
+        database.add(new Song("Walking on Sunshine","Katrina and The Waves", "walkingonsunshine.mp3"));
+        database.add(new Song("Super Far","LANY", "superfar.mp3"));
     }
 
-    public String getFile() {
-        return file;
+    public double getEmotionCompatibility(Emotion faceEmotion){
+        return emotion.compatibility(faceEmotion);
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     public String getSongName() {
         return songName;
-
     }
 
-    public String getArtistName() {
-        return artistName;
+    public Emotion getEmotion() {
+        return emotion;
+    }
+
+    private class ScrapeSentiment extends AsyncTask<Void, Void, String> implements Serializable{
+        private Emotion emotion;
+
+        public ScrapeSentiment(){
+            emotion = new Emotion();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                String apiKey = "910d266bf07add88c50e4b1acb84e0d6";
+                MusixMatch musixMatch = new MusixMatch(apiKey);
+                Track track;
+
+                try {
+                    track = musixMatch.getMatchingTrack(songName, artistName);
+                } catch (MusixMatchException e) {
+                    return null;
+                }
+
+                TrackData data = track.getTrack();
+                int trackID = data.getTrackId();
+                Lyrics lyrics;
+
+                try {
+                    lyrics = musixMatch.getLyrics(trackID);
+                } catch (MusixMatchException e) {
+                    return null;
+                }
+
+                String lyricsBody = lyrics.getLyricsBody();
+                Pattern pattern = Pattern.compile("[.]{3}[\\s\\S]*[*]{7}");
+                Matcher matcher = pattern.matcher(lyricsBody);
+                if(matcher.find()){
+                    lyricsBody = matcher.replaceAll("");
+                }
+
+                NaturalLanguageUnderstanding service = new NaturalLanguageUnderstanding(
+                        "2018-03-16",
+                        "e418e6cb-741d-4b54-9aef-0d46e0658f7c",
+                        "TVVSr6HbiN6o");
+                service.setEndPoint("https://gateway.watsonplatform.net/natural-language-understanding/api");
+
+                EmotionOptions emotionOptions = new EmotionOptions.Builder()
+                        .build();
+
+                Features features = new Features.Builder()
+                        .emotion(emotionOptions)
+                        .build();
+
+                AnalyzeOptions parameters = new AnalyzeOptions.Builder()
+                        .text(lyricsBody)
+                        .features(features)
+                        .build();
+
+                AnalysisResults response = service
+                        .analyze(parameters)
+                        .execute();
+
+                EmotionResult emotionResult = response.getEmotion();
+                String emotionString = emotionResult.toString();
+                JSONObject emo = new JSONObject(emotionString).getJSONObject("document").getJSONObject("emotion");
+                this.emotion.setDisgust(emo.getDouble("disgust"));
+                this.emotion.setFear(emo.getDouble("fear"));
+                this.emotion.setSadness(emo.getDouble("sadness"));
+                this.emotion.setAnger(emo.getDouble("anger"));
+                this.emotion.setHappiness(emo.getDouble("joy"));
+
+                return null;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        public Emotion getEmotion() {
+            return this.emotion;
+        }
     }
 }

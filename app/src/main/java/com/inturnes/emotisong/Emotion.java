@@ -3,11 +3,7 @@ package com.inturnes.emotisong;
 import java.io.Serializable;
 
 public class Emotion implements Serializable {
-    private double disgust;
-    private double fear;
-    private double sadness;
-    private double anger;
-    private double happiness;
+    private double disgust, fear, sadness, anger, happiness;
 
     public Emotion(){
     }
@@ -58,5 +54,16 @@ public class Emotion implements Serializable {
         }
 
         return new Emotion(feelings[0]/numFaces, feelings[1]/numFaces, feelings[2]/numFaces, feelings[3]/numFaces, feelings[4]/numFaces);
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder emotion = new StringBuilder();
+        emotion.append("Disgust " + disgust);
+        emotion.append("\nFear " + fear);
+        emotion.append("\nSadness " + sadness);
+        emotion.append("\nAnger " + anger);
+        emotion.append("\nHappiness " + happiness + "\n");
+        return emotion.toString();
     }
 }

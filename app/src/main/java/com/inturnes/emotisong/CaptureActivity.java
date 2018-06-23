@@ -9,7 +9,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -25,16 +24,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
-import java.sql.Blob;
 import java.text.DecimalFormat;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
@@ -42,25 +34,20 @@ import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
 import cz.msebera.android.httpclient.client.utils.URIBuilder;
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
-import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.impl.client.HttpClients;
 import cz.msebera.android.httpclient.util.EntityUtils;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 public class CaptureActivity extends AppCompatActivity {
-    //private MasterPlaylist masterPlaylist;
     //credit: https://blogs.msdn.microsoft.com/uk_faculty_connection/2017/10/14/using-microsoft-cognitive-emotion-api-with-android-app-studio/
     private ImageView imageView; // variable to hold the image view in our activity_main.xml
     private TextView resultText; // variable to hold the text view in our activity_main.xml
     private static final int RESULT_LOAD_IMAGE  = 100;
     private static final int REQUEST_PERMISSION_CODE = 200;
-
     private static final int SELECT_PICTURE = 1;
     private String selectedImagePath;
 
-    //TODO have a button that when you click it, will bring you to the playlist screen
-    //TODO pass the master playlist to it, call the top songs method on it
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +57,8 @@ public class CaptureActivity extends AppCompatActivity {
         // initiate our image view and text view
         imageView = (ImageView) findViewById(R.id.imageView);
         resultText = (TextView) findViewById(R.id.resultText);
-        //masterPlaylist = new MasterPlaylist(CaptureActivity.this);
+
+        Song.initializeDatabase();
     }
 
     // when the "GET EMOTION" Button is clicked this function is called
@@ -115,12 +103,9 @@ public class CaptureActivity extends AppCompatActivity {
                 }
             }
         }
-
     }
 
-    /**
-     * helper to retrieve the path of an image URI
-     */
+    // helper to retrieve the path of an image URI
     public String getPath(Uri uri) {
         // just some safety built in
         if( uri == null ) {
@@ -150,12 +135,6 @@ public class CaptureActivity extends AppCompatActivity {
         bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
 
         return baos.toByteArray();
-
-        /*Bitmap bm = BitmapFactory.decodeFile(selectedImagePath);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
-        byte[] b = baos.toByteArray();
-        return b;*/
     }
 
     // if permission is not given we get permission
@@ -207,43 +186,17 @@ public class CaptureActivity extends AppCompatActivity {
 
                 // Request body. Replace the example URL below with the URL of the image you want to analyze.
                 byte[] temp = toBase64(img);
-                System.out.println("temp: " + temp);
                 ByteArrayEntity reqEntity = new ByteArrayEntity(temp);
                 String encodedImage = Base64.encodeToString(temp, Base64.DEFAULT);
-                System.out.println("encoded: " + encodedImage);
-                System.out.println("created byte array entity " + reqEntity);
                 request.setEntity(reqEntity);
-                System.out.println("img set");
 
                 HttpResponse response = httpClient.execute(request);
-                System.out.println("entity requested " + response);
                 HttpEntity entity = response.getEntity();
-                System.out.println("entity received " + entity);
 
                 // Request body.The parameter of setEntity converts the image to base64
-                //request.setEntity(new ByteArrayEntity(toBase64(img)));
 
-                if (entity != null)
-                {
-                    String res = EntityUtils.toString(entity);
-                    System.out.println("here: " + res);
-                    return res;
-                } else {
-                    System.out.println("entity was null");
-                    return "null";
-                }
-                // getting a response and assigning it to the string res
-               /* HttpResponse response = httpClient.execute(request);
-                HttpEntity entity = response.getEntity();
-                String res = EntityUtils.toString(entity);
-
-
-                return res;*/
-
-            }
-            catch (Exception e)
-            {
-                System.out.println(e.getMessage());
+                return entity != null? EntityUtils.toString(entity) : "null";
+            } catch (Exception e) {
                 return "null";
             }
         }
@@ -252,41 +205,23 @@ public class CaptureActivity extends AppCompatActivity {
         // this function is called when we get a result from the API call
         @Override
         protected void onPostExecute(String result) {
+            System.out.println(result);
             DecimalFormat df = new DecimalFormat("#.00");
-            MasterPlaylist masterPlaylist = new MasterPlaylist(CaptureActivity.this);
             JSONArray jsonArray = null;
             try {
                 // convert the string to JSONArray
                 jsonArray = new JSONArray(result);
-                String emotions = "";
-
-                //store emotion mapped to sum of emotional scores from each person
-                Map<String, Double> maxEmotions = new HashMap<>();
-                maxEmotions.put("anger", 0.0);
-                maxEmotions.put("contempt", 0.0);
-                maxEmotions.put("disgust", 0.0);
-                maxEmotions.put("fear", 0.0);
-                maxEmotions.put("happiness", 0.0);
-                maxEmotions.put("neutral", 0.0);
-                maxEmotions.put("sadness", 0.0);
-                maxEmotions.put("surprise", 0.0);
-                // get the scores object from the results
+                Emotion[] faces = new Emotion[jsonArray.length()];
 
                 for(int i = 0; i < jsonArray.length();i++) {
-                    Person newFace = new Person();
                     JSONObject jsonObject = new JSONObject(jsonArray.get(i).toString());
                     JSONObject scores = jsonObject.getJSONObject("scores");
-                    double max = 0;
-                    String emotion = "";
                     Emotion newEmotion = new Emotion();
+
                     for (int j = 0; j < scores.names().length(); j++) {
-
                         String currEmotion = scores.names().getString(j);
-                        maxEmotions.put(currEmotion, maxEmotions.get(currEmotion) + scores.getDouble(currEmotion));
-
-                        String tag = scores.names().getString(j);
-                        double strength = scores.getDouble(scores.names().getString(j));
-                        switch(tag){
+                        double strength = scores.getDouble(currEmotion);
+                        switch(currEmotion){
                             case "anger":
                                 newEmotion.setAnger(strength);
                                 break;
@@ -303,43 +238,17 @@ public class CaptureActivity extends AppCompatActivity {
                                 newEmotion.setSadness(strength);
                                 break;
                         }
-
-
-                        if (scores.getDouble(scores.names().getString(j)) > max) {
-                            max = strength;
-                            emotion = tag;
-                        }
                     }
-
-                    //emotions += emotion.substring(0,1).toUpperCase() + emotion.substring(1) + " " + String.format( "%.2f", max * 100)  + "% \n";
-                    newFace.addEmotion(newEmotion);
-                    masterPlaylist.addFace(newFace);
+                    faces[i] = newEmotion;
                 }
 
-                Map.Entry<String, Double> maxEntry = null;
-                for (Map.Entry<String, Double> entry : maxEmotions.entrySet())
-                {
-                    if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
-                    {
-                        maxEntry = entry;
-                    }
-                }
-
-                final String maxEmotion = maxEntry.getKey();
-                emotions += "Overall " + maxEmotion + " " + String.format( "%.2f", (maxEntry.getValue() / 8 * 100)) + "%\n";
-                resultText.setText(emotions);
-
-                //pass MasterPlaylist class to next class
-                /*Song song = masterPlaylist.getTopSongs().get(0);
-                String file = song.getFile();
-                System.out.println(song.getSongName());*/
-
+                Song topSong = Song.getTopSong(faces);
+                String fileName = topSong.getFileName();
+                System.out.println("Best song! " + topSong.getSongName() + "\n");
 
                 Intent intent = new Intent(CaptureActivity.this, SongActivity.class);
-                intent.putExtra("emotion", maxEmotion);
-                System.out.println(maxEmotion);
+                intent.putExtra("fileName", fileName);
                 startActivity(intent);
-
 
             } catch (JSONException e) {
                 System.out.println(e);
