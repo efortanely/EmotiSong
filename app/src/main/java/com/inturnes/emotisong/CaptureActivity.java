@@ -266,9 +266,9 @@ public class CaptureActivity extends AppCompatActivity {
                     if (i == faces.length - 1) {
                         if (faces.length != 1)
                             flavorText.append(" and");
-                        flavorText.append(" " + String.format("%.2f", (face.getVal(face.getEmotionConveyed()) / faces.length * 100))+ "% " + face.getEmotionConveyed() + ".");
+                        flavorText.append(" " + String.format("%.2f", (face.getVal(face.getEmotionConveyed()) * 100))+ "% " + face.getEmotionConveyed() + ".");
                     } else {
-                        flavorText.append(" " + String.format("%.2f", (face.getVal(face.getEmotionConveyed()) / faces.length * 100)) + "% " + face.getEmotionConveyed());
+                        flavorText.append(" " + String.format("%.2f", (face.getVal(face.getEmotionConveyed()) * 100)) + "% " + face.getEmotionConveyed());
                         if (faces.length > 2)
                             flavorText.append(",");
                     }
