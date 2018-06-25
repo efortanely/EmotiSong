@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -95,17 +96,17 @@ public class CaptureActivity extends AppCompatActivity {
             imageView.setImageBitmap(bitmap);
 
 
-            if (resultCode == RESULT_OK) {
+            /*if (resultCode == RESULT_OK) {
                 if (requestCode == SELECT_PICTURE) {
                     Uri selectedImageUri = data.getData();
                     selectedImagePath = getPath(selectedImageUri);
                 }
-            }
+            }*/
         }
     }
 
     // helper to retrieve the path of an image URI
-    public String getPath(Uri uri) {
+   /*public String getPath(Uri uri) {
         // just some safety built in
         if (uri == null) {
             return null;
@@ -124,13 +125,13 @@ public class CaptureActivity extends AppCompatActivity {
         }
         // this is our fallback here
         return uri.getPath();
-    }
+    }*/
 
     // convert image to base 64 so that we can send the image to Emotion API
     public byte[] toBase64(ImageView imgPreview) {
         Bitmap bm = ((BitmapDrawable) imgPreview.getDrawable()).getBitmap();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+        bm.compress(Bitmap.CompressFormat.JPEG, 10, baos); //bm is the bitmap object
 
         return baos.toByteArray();
     }
@@ -185,9 +186,9 @@ public class CaptureActivity extends AppCompatActivity {
                 // Request body. Replace the example URL below with the URL of the image you want to analyze.
                 byte[] temp = toBase64(img);
                 ByteArrayEntity reqEntity = new ByteArrayEntity(temp);
-                String encodedImage = Base64.encodeToString(temp, Base64.DEFAULT);
+               // String encodedImage = Base64.encodeToString(temp, Base64.DEFAULT);
                 request.setEntity(reqEntity);
-
+                System.out.println("img set");
                 HttpResponse response = httpClient.execute(request);
                 HttpEntity entity = response.getEntity();
 
@@ -195,6 +196,7 @@ public class CaptureActivity extends AppCompatActivity {
 
                 return entity != null ? EntityUtils.toString(entity) : "null";
             } catch (Exception e) {
+                System.out.println("Exception in getting image");
                 return "null";
             }
         }
@@ -264,22 +266,39 @@ public class CaptureActivity extends AppCompatActivity {
                     if (i == faces.length - 1) {
                         if (faces.length != 1)
                             flavorText.append(" and");
-                        flavorText.append(" " + face.getEmotionConveyed() + ".");
+                        flavorText.append(" " + String.format("%.2f", (face.getVal(face.getEmotionConveyed()) / faces.length * 100))+ "% " + face.getEmotionConveyed() + ".");
                     } else {
-                        flavorText.append(" " + face.getEmotionConveyed());
+                        flavorText.append(" " + String.format("%.2f", (face.getVal(face.getEmotionConveyed()) / faces.length * 100)) + "% " + face.getEmotionConveyed());
                         if (faces.length > 2)
                             flavorText.append(",");
                     }
                 }
 
-                flavorText.append(" How about a " + topSong.getSongMood() + " song?");
+                //flavorText.append(" How about a " + topSong.getSongMood() + " song?");
+                flavorText.append(" How about the song \"" + songName + "\" by " + artistName + "?");
 
                 resultText.setText(flavorText.toString());
+
+                Button playSong = (Button) findViewById(R.id.button);
+                playSong.setVisibility(View.VISIBLE);
+
+                playSong.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //when play is clicked show stop button and hide play button
+                        Intent intent = new Intent(CaptureActivity.this, SongActivity.class);
+                        intent.putExtra("songPath", songPath);
+                        intent.putExtra("artResource", artResource);
+                        intent.putExtra("songName", songName);
+                        intent.putExtra("artistName", artistName);
+                        startActivity(intent);
+                    }
+                });
 
                 //stall the current thread for 1.5 sec to show the flavor text
                 //pass the resources associated with the top song to the
                 //next activity to be used for displaying in the song player
-                new Handler().postDelayed(new Runnable() {
+                /*new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         Intent intent = new Intent(CaptureActivity.this, SongActivity.class);
@@ -289,7 +308,7 @@ public class CaptureActivity extends AppCompatActivity {
                         intent.putExtra("artistName", artistName);
                         startActivity(intent);
                     }
-                }, 1500);
+                }, 1500);*/
 
             } catch (JSONException e) {
                 System.out.println(e);

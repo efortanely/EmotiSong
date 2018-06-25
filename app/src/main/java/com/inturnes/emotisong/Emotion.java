@@ -60,6 +60,21 @@ public class Emotion implements Serializable {
                 this.sadness * other.sadness + this.anger * other.anger + this.happiness * other.happiness;
     }
 
+    public double getVal(String emotion) {
+        if (emotion.equalsIgnoreCase("fear")) {
+            return fear;
+        } else if (emotion.equalsIgnoreCase("disgust")) {
+            return disgust;
+        } else if (emotion.equalsIgnoreCase("anger")) {
+            return anger;
+        } else if (emotion.equalsIgnoreCase("happy")) {
+            return happiness;
+        } else if (emotion.equalsIgnoreCase("sad")) {
+            return sadness;
+        }
+        return 0;
+    }
+
     //returns the string associated with the strongest emotion
     public String getEmotionConveyed() {
         double maxVal = disgust;
