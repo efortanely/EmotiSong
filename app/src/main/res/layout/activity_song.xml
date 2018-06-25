@@ -1,0 +1,43 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SongActivity">
+
+    <ImageView
+        android:id="@+id/songArt"
+        android:layout_width="360sp"
+        android:layout_height="360sp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="8dp"
+        app:srcCompat="@drawable/beautifulgirls" />
+
+    <TextView
+        android:id="@+id/songNameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/songArt"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="8dp"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/songArtistLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/songNameLabel"
+        android:layout_centerHorizontal="true"
+        android:textSize="20sp" />
+
+    <ImageButton
+        android:id="@+id/playButton"
+        android:layout_width="64sp"
+        android:layout_height="64sp"
+        android:layout_below="@id/songArtistLabel"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="12dp"
+        app:srcCompat="@android:drawable/ic_media_play" />
+
+</RelativeLayout>
