@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -186,7 +187,7 @@ public class CaptureActivity extends AppCompatActivity {
                 // Request body. Replace the example URL below with the URL of the image you want to analyze.
                 byte[] temp = toBase64(img);
                 ByteArrayEntity reqEntity = new ByteArrayEntity(temp);
-               // String encodedImage = Base64.encodeToString(temp, Base64.DEFAULT);
+                // String encodedImage = Base64.encodeToString(temp, Base64.DEFAULT);
                 request.setEntity(reqEntity);
                 System.out.println("img set");
                 HttpResponse response = httpClient.execute(request);
@@ -262,24 +263,26 @@ public class CaptureActivity extends AppCompatActivity {
 
                 for (int i = 0; i < faces.length; i++) {
                     Emotion face = faces[i];
+                    Pair<String,Double> emotionPair = face.getEmotionForFlavorText();
+                    String percentageToPrint = String.format("%.2f", emotionPair.second * 100) + "%";
+                    String emotionToPrint = percentageToPrint + " " + emotionPair.first;
 
                     if (i == faces.length - 1) {
                         if (faces.length != 1)
                             flavorText.append(" and");
-                        flavorText.append(" " + String.format("%.2f", (face.getVal(face.getEmotionConveyed()) * 100))+ "% " + face.getEmotionConveyed() + ".");
+                        flavorText.append(" " + emotionToPrint + ".");
                     } else {
-                        flavorText.append(" " + String.format("%.2f", (face.getVal(face.getEmotionConveyed()) * 100)) + "% " + face.getEmotionConveyed());
+                        flavorText.append(" " + emotionToPrint);
                         if (faces.length > 2)
                             flavorText.append(",");
                     }
                 }
 
-                //flavorText.append(" How about a " + topSong.getSongMood() + " song?");
                 flavorText.append(" How about the song \"" + songName + "\" by " + artistName + "?");
 
                 resultText.setText(flavorText.toString());
 
-                Button playSong = (Button) findViewById(R.id.button);
+                Button playSong = (Button) findViewById(R.id.navigateToSongScreenButton);
                 playSong.setVisibility(View.VISIBLE);
 
                 playSong.setOnClickListener(new View.OnClickListener() {
@@ -294,21 +297,6 @@ public class CaptureActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 });
-
-                //stall the current thread for 1.5 sec to show the flavor text
-                //pass the resources associated with the top song to the
-                //next activity to be used for displaying in the song player
-                /*new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(CaptureActivity.this, SongActivity.class);
-                        intent.putExtra("songPath", songPath);
-                        intent.putExtra("artResource", artResource);
-                        intent.putExtra("songName", songName);
-                        intent.putExtra("artistName", artistName);
-                        startActivity(intent);
-                    }
-                }, 1500);*/
 
             } catch (JSONException e) {
                 System.out.println(e);

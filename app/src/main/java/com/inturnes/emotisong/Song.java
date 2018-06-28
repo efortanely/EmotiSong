@@ -81,7 +81,7 @@ public class Song implements Serializable {
         Song.database = new ArrayList<>();
         database.add(new Song("Someone Like You", "Adele", "someonelikeyou.mp3", R.drawable.someonelikeyou));
         database.add(new Song("Lonely", "Akon", "lonely.mp3", R.drawable.lonely));
-        database.add(new Song("Wouldn't It Be Nice", "Beach Boys", "wouldntitbenice.mp3", R.drawable.wouldntitbenice));
+        database.add(new Song("Wouldn't It Be Nice", "The Beach Boys", "wouldntitbenice.mp3", R.drawable.wouldntitbenice));
         database.add(new Song("Nothin' On You", "B.o.B", "nothinonyou.mp3", R.drawable.nothinonyou));
         database.add(new Song("Don't Worry Be Happy", "Bobby McFerrin", "dontworrybehappy.mp3", R.drawable.dontworrybehappy));
         database.add(new Song("Mr. Blue Sky", "Electric Light Orchestra", "mrbluesky.mp3", R.drawable.mrbluesky));
@@ -98,7 +98,7 @@ public class Song implements Serializable {
 
     //returns the mood of the song correlated with its strongest emotion
     public String getSongMood() {
-        String emotionMood = this.emotion.getEmotionConveyed();
+        String emotionMood = this.emotion.getEmotionForFlavorText().first;
         switch (emotionMood) {
             case "disgusted":
                 return "disgusting";
@@ -210,9 +210,9 @@ public class Song implements Serializable {
                 this.emotion.setSadness(emo.getDouble("sadness"));
                 this.emotion.setAnger(emo.getDouble("anger"));
                 this.emotion.setHappiness(emo.getDouble("joy"));
-
             }catch(Exception e){
-                System.out.println("OH NO!");
+                System.out.println("Failed to retrieve " + songName + " by " + artistName);
+                System.out.println("Emotion vector for " + songName + " set to 0.");
                 return null;
             }
 

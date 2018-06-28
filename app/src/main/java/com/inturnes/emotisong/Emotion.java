@@ -1,5 +1,7 @@
 package com.inturnes.emotisong;
 
+import android.util.Pair;
+
 import java.io.Serializable;
 
 public class Emotion implements Serializable {
@@ -60,33 +62,18 @@ public class Emotion implements Serializable {
                 this.sadness * other.sadness + this.anger * other.anger + this.happiness * other.happiness;
     }
 
-    public double getVal(String emotion) {
-        if (emotion.equalsIgnoreCase("fear")) {
-            return fear;
-        } else if (emotion.equalsIgnoreCase("disgust")) {
-            return disgust;
-        } else if (emotion.equalsIgnoreCase("anger")) {
-            return anger;
-        } else if (emotion.equalsIgnoreCase("happy")) {
-            return happiness;
-        } else if (emotion.equalsIgnoreCase("sad")) {
-            return sadness;
-        }
-        return 0;
-    }
-
-    //returns the string associated with the strongest emotion
-    public String getEmotionConveyed() {
+    //returns the emotion formatted for printing and the double value
+    public Pair<String, Double> getEmotionForFlavorText() {
         double maxVal = disgust;
-        String maxEmotion = "disgusted";
+        Pair<String, Double> maxEmotion = new Pair<>("disgusted",disgust);
         if (fear > maxVal)
-            maxEmotion = "fearful";
+            maxEmotion = new Pair<>("fearful",fear);
         if (sadness > maxVal)
-            maxEmotion = "sad";
+            maxEmotion = new Pair<>("sad",sadness);
         if (anger > maxVal)
-            maxEmotion = "angry";
+            maxEmotion = new Pair<>("angry",anger);
         if (happiness > maxVal)
-            maxEmotion = "happy";
+            maxEmotion = new Pair<>("happy",happiness);
         return maxEmotion;
     }
 

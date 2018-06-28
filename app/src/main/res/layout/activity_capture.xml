@@ -77,7 +77,7 @@
         tools:layout_constraintRight_creator="1" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/navigateToSongScreenButton"
         android:layout_width="74dp"
         android:layout_height="37dp"
         android:text="Play Song"
